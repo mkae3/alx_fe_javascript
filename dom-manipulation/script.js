@@ -1,59 +1,60 @@
-// Quotes array with text and category properties
-let quotes = [
-    { text: "The best way to get started is to quit talking and begin doing.", category: "Motivation" },
-    { text: "Don't let yesterday take up too much of today.", category: "Inspiration" },
-    { text: "It's not whether you get knocked down, it's whether you get up.", category: "Perseverance" }
-];
-
-// Function to display a random quote
-function displayRandomQuote() {
-    let randomIndex = Math.floor(Math.random() * quotes.length);
-    document.getElementById("quoteText").innerText = quotes[randomIndex].text;
-    document.getElementById("quoteCategory").innerText = `Category: ${quotes[randomIndex].category}`;
-}
-
-// Function to add a new quote
-function addQuote() {
-    let quoteText = document.getElementById("quoteInput").value.trim();
-    let quoteCategory = document.getElementById("categoryInput").value.trim();
-
-    if (quoteText === "" || quoteCategory === "") {
-        alert("Please fill in both the quote and the category");
-        return;
-    }
-
-    quotes.push({ text: quoteText, category: quoteCategory });
-
-    document.getElementById("quoteInput").value = "";
-    document.getElementById("categoryInput").value = "";
-
-    displayRandomQuote();
-}
-
-// Event listeners
-document.getElementById("newQuoteBtn").addEventListener("click", displayRandomQuote);
-document.getElementById("addQuoteBtn").addEventListener("click", addQuote);
-
-// Display first quote on page load
-displayRandomQuote();
-// مصفوفة الاقتباسات مع النص والتصنيف
+// مصفوفة الاقتباسات مع نص وتصنيف لكل اقتباس
 let quotes = [
   { text: "The best way to get started is to quit talking and begin doing.", category: "Motivation" },
   { text: "Don't let yesterday take up too much of today.", category: "Inspiration" },
   { text: "It's not whether you get knocked down, it's whether you get up.", category: "Perseverance" }
 ];
 
-// دالة عرض اقتباس عشوائي
-function displayRandomQuote() {
-  let randomIndex = Math.floor(Math.random() * quotes.length);
-  document.getElementById("quoteText").innerText = quotes[randomIndex].text;
-  document.getElementById("quoteCategory").innerText = `Category: ${quotes[randomIndex].category}`;
+// دالة تعرض اقتباس عشوائي داخل العنصر #quoteDisplay
+function showRandomQuote() {
+  const quoteDisplay = document.getElementById("quoteDisplay");
+  const randomIndex = Math.floor(Math.random() * quotes.length);
+  const quote = quotes[randomIndex];
+
+  // مسح المحتوى الحالي
+  quoteDisplay.innerHTML = "";
+
+  // إنشاء عناصر جديدة وعرض الاقتباس
+  const pText = document.createElement("p");
+  pText.innerText = quote.text;
+  const pCategory = document.createElement("p");
+  pCategory.innerText = `Category: ${quote.category}`;
+
+  quoteDisplay.appendChild(pText);
+  quoteDisplay.appendChild(pCategory);
 }
 
-// دالة إضافة اقتباس جديد
+// دالة تنشئ فورم الإضافة الديناميكي
+function createAddQuoteForm() {
+  const container = document.getElementById("addQuoteFormContainer");
+
+  const form = document.createElement("div");
+
+  const inputQuote = document.createElement("input");
+  inputQuote.type = "text";
+  inputQuote.id = "newQuoteText";
+  inputQuote.placeholder = "Enter a new quote";
+
+  const inputCategory = document.createElement("input");
+  inputCategory.type = "text";
+  inputCategory.id = "newQuoteCategory";
+  inputCategory.placeholder = "Enter quote category";
+
+  const addButton = document.createElement("button");
+  addButton.innerText = "Add Quote";
+  addButton.addEventListener("click", addQuote);
+
+  form.appendChild(inputQuote);
+  form.appendChild(inputCategory);
+  form.appendChild(addButton);
+
+  container.appendChild(form);
+}
+
+// دالة لإضافة اقتباس جديد إلى المصفوفة وعرضه
 function addQuote() {
-  let quoteText = document.getElementById("quoteInput").value.trim();
-  let quoteCategory = document.getElementById("categoryInput").value.trim();
+  const quoteText = document.getElementById("newQuoteText").value.trim();
+  const quoteCategory = document.getElementById("newQuoteCategory").value.trim();
 
   if (quoteText === "" || quoteCategory === "") {
     alert("Please fill in both the quote and the category");
@@ -62,17 +63,18 @@ function addQuote() {
 
   quotes.push({ text: quoteText, category: quoteCategory });
 
-  // مسح الحقول بعد الإضافة
-  document.getElementById("quoteInput").value = "";
-  document.getElementById("categoryInput").value = "";
+  // مسح الحقول
+  document.getElementById("newQuoteText").value = "";
+  document.getElementById("newQuoteCategory").value = "";
 
-  // عرض اقتباس جديد عشوائي بعد الإضافة
-  displayRandomQuote();
+  showRandomQuote();
 }
 
-// إعداد الاستماع للأزرار
-document.getElementById("newQuoteBtn").addEventListener("click", displayRandomQuote);
-document.getElementById("addQuoteBtn").addEventListener("click", addQuote);
+// إضافة مستمع للزر لعرض اقتباس جديد
+document.getElementById("newQuote").addEventListener("click", showRandomQuote);
 
-// عرض أول اقتباس عند تحميل الصفحة
-displayRandomQuote();
+// إنشاء فورم الإضافة عند تحميل الصفحة
+createAddQuoteForm();
+
+// عرض اقتباس أولي عند تحميل الصفحة
+showRandomQuote();
