@@ -1,80 +1,98 @@
-// مصفوفة الاقتباسات مع نص وتصنيف لكل اقتباس
-let quotes = [
-  { text: "The best way to get started is to quit talking and begin doing.", category: "Motivation" },
-  { text: "Don't let yesterday take up too much of today.", category: "Inspiration" },
-  { text: "It's not whether you get knocked down, it's whether you get up.", category: "Perseverance" }
-];
+let quotes = [];
 
-// دالة تعرض اقتباس عشوائي داخل العنصر #quoteDisplay
-function showRandomQuote() {
-  const quoteDisplay = document.getElementById("quoteDisplay");
-  const randomIndex = Math.floor(Math.random() * quotes.length);
-  const quote = quotes[randomIndex];
-
-  // مسح المحتوى الحالي
-  quoteDisplay.innerHTML = "";
-
-  // إنشاء عناصر جديدة وعرض الاقتباس
-  const pText = document.createElement("p");
-  pText.innerText = quote.text;
-  const pCategory = document.createElement("p");
-  pCategory.innerText = `Category: ${quote.category}`;
-
-  quoteDisplay.appendChild(pText);
-  quoteDisplay.appendChild(pCategory);
+// Load quotes from local storage
+function loadQuotes() {
+    const storedQuotes = localStorage.getItem("quotes");
+    if (storedQuotes) {
+        quotes = JSON.parse(storedQuotes);
+    } else {
+        // Default quotes if no data in storage
+        quotes = [
+            "The best way to predict the future is to invent it.",
+            "Life is 10% what happens to us and 90% how we react to it.",
+            "Do not watch the clock. Do what it does. Keep going."
+        ];
+        saveQuotes();
+    }
 }
 
-// دالة تنشئ فورم الإضافة الديناميكي
-function createAddQuoteForm() {
-  const container = document.getElementById("addQuoteFormContainer");
-
-  const form = document.createElement("div");
-
-  const inputQuote = document.createElement("input");
-  inputQuote.type = "text";
-  inputQuote.id = "newQuoteText";
-  inputQuote.placeholder = "Enter a new quote";
-
-  const inputCategory = document.createElement("input");
-  inputCategory.type = "text";
-  inputCategory.id = "newQuoteCategory";
-  inputCategory.placeholder = "Enter quote category";
-
-  const addButton = document.createElement("button");
-  addButton.innerText = "Add Quote";
-  addButton.addEventListener("click", addQuote);
-
-  form.appendChild(inputQuote);
-  form.appendChild(inputCategory);
-  form.appendChild(addButton);
-
-  container.appendChild(form);
+// Save quotes to local storage
+function saveQuotes() {
+    localStorage.setItem("quotes", JSON.stringify(quotes));
 }
 
-// دالة لإضافة اقتباس جديد إلى المصفوفة وعرضه
+// Display a random quote
+function displayRandomQuote() {
+    if (quotes.length === 0) {
+        document.getElementById("quoteDisplay").textContent = "No quotes available!";
+        return;
+    }
+    const randomIndex = Math.floor(Math.random() * quotes.length);
+    const randomQuote = quotes[randomIndex];
+    document.getElementById("quoteDisplay").textContent = randomQuote;
+
+    // Save last viewed quote in session storage
+    sessionStorage.setItem("lastQuote", randomQuote);
+}
+
+// Add a new quote
 function addQuote() {
-  const quoteText = document.getElementById("newQuoteText").value.trim();
-  const quoteCategory = document.getElementById("newQuoteCategory").value.trim();
-
-  if (quoteText === "" || quoteCategory === "") {
-    alert("Please fill in both the quote and the category");
-    return;
-  }
-
-  quotes.push({ text: quoteText, category: quoteCategory });
-
-  // مسح الحقول
-  document.getElementById("newQuoteText").value = "";
-  document.getElementById("newQuoteCategory").value = "";
-
-  showRandomQuote();
+    const newQuote = document.getElementById("newQuoteInput").value.trim();
+    if (newQuote) {
+        quotes.push(newQuote);
+        saveQuotes();
+        document.getElementById("newQuoteInput").value = "";
+        alert("Quote added successfully!");
+    } else {
+        alert("Please enter a quote.");
+    }
 }
 
-// إضافة مستمع للزر لعرض اقتباس جديد
-document.getElementById("newQuote").addEventListener("click", showRandomQuote);
+// Export quotes as JSON file
+function exportQuotes() {
+    const dataStr = JSON.stringify(quotes, null, 2);
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
 
-// إنشاء فورم الإضافة عند تحميل الصفحة
-createAddQuoteForm();
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "quotes.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
 
-// عرض اقتباس أولي عند تحميل الصفحة
-showRandomQuote();
+// Import quotes from JSON file
+function importFromJsonFile(event) {
+    const fileReader = new FileReader();
+    fileReader.onload = function(e) {
+        try {
+            const importedQuotes = JSON.parse(e.target.result);
+            if (Array.isArray(importedQuotes)) {
+                quotes.push(...importedQuotes);
+                saveQuotes();
+                alert("Quotes imported successfully!");
+            } else {
+                alert("Invalid JSON format.");
+            }
+        } catch {
+            alert("Error reading JSON file.");
+        }
+    };
+    fileReader.readAsText(event.target.files[0]);
+}
+
+// Event listeners
+document.getElementById("newQuoteBtn").addEventListener("click", displayRandomQuote);
+document.getElementById("addQuoteBtn").addEventListener("click", addQuote);
+document.getElementById("exportBtn").addEventListener("click", exportQuotes);
+document.getElementById("importFile").addEventListener("change", importFromJsonFile);
+
+// Load initial data
+loadQuotes();
+
+// Show last quote if available
+const lastQuote = sessionStorage.getItem("lastQuote");
+if (lastQuote) {
+    document.getElementById("quoteDisplay").textContent = lastQuote;
+}
